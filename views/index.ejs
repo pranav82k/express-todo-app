@@ -63,8 +63,8 @@
 
                     let result = await response.json();
                     edit_form.reset();
-                    window.location.reload();
                     alert(result.msg);
+                    window.location.reload();
                 }
 
                 itemContainer.onclick = function(e) {

@@ -110,7 +110,7 @@ app.put('/items/:id', (req, res) => {
     // console.log(req.body);
     const id = req.params.id;
     Item.findByIdAndUpdate(id, req.body).then(result => { 
-        res.json({msg: 'Updated Successfully'}) 
+        res.json({msg: 'Item Updated Successfully'}) 
     }).catch(err => console.log(err));
 })
 
