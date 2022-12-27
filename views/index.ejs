@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('./partials/head.ejs') %>
+
+    <body>
+        <%- include('./partials/nav.ejs') %>
+            <div id="itemContainer" class="container">
+                <ul class="collection with-header">
+                    <% if(items.length> 0) { %>
+                        <% items.forEach(item => { %>
+                            <li class="collection-item">
+                                <div>
+                                    <a href="/items/<%= item._id %>">
+                                        <%= item.name %> $<%= item.price %>
+                                    </a>
+                                    <a href="javascript:void(0);" class="secondary-content">
+                                        <i class="material-icons" data-id="<%= item._id %>">delete</i>
+                                        <i class="material-icons modal-trigger" data-id="<%= item._id %>" data-name="<%= item.name %>" data-price="<%= item.price %>" href="#edit_item_modal">edit</i>
+                                    </a>
+                                </div>
+                            </li>
+                        <% }) %>
+                    <% } else { %>
+                        <li>There are no items</li>
+                    <% } %>
+                </ul>
+            </div>
+
+            <!-- Modal Structure -->
+            <div id="edit_item_modal" class="modal">
+                <div class="modal-content">
+                    <h4>Edit Form</h4>
+                    <form id="edit_form" action="">
+                        <input id="item_name" type="text" name="name" placeholder="item name" required>
+                        <input id="item_price" type="number" name="price" placeholder="item price" required>
+                        <button class="btn">Update</button>
+                    </form>
+                </div>
+            </div>
+            <!-- Compiled and minified JavaScript -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+            <script>
+                let updateId;
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    var elems = document.querySelectorAll('.modal');
+                    var instances = M.Modal.init(elems);
+                });
+
+                edit_form.onsubmit = async function(e) {
+                    // console.log(updateId);
+                    e.preventDefault();
+                    let data = new FormData(edit_form);
+                    let endpoint = `items/${updateId}`;
+                    // console.log(endpoint);
+                    let response = await fetch(endpoint, {
+                        method: 'PUT',
+                        body: new URLSearchParams(data),
+                        Headers: new Headers({
+                            'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                        })
+                    });
+
+                    let result = await response.json();
+                    edit_form.reset();
+                    window.location.reload();
+                    alert(result.msg);
+                }
+
+                itemContainer.onclick = function(e) {
+                    let textContent = e.target.textContent;
+                    if(textContent === 'edit') {
+                        updateId = e.target.getAttribute('data-id');
+                        document.getElementById('item_name').value = e.target.getAttribute('data-name');
+                        document.getElementById('item_price').value = e.target.getAttribute('data-price');
+                    }
+                    if(textContent === 'delete') {
+                        const id = e.target.getAttribute('data-id');
+                        const endpoint = `/items/${id}`;
+                        fetch(endpoint, {
+                            method: 'DELETE'
+                        }).then(res => res.json()).
+                            then(data => {
+                                alert('Item Deleted Successfully.');
+                                window.location.href = data.redirect;
+                            }).catch(err => console.log(err));
+                    }
+                }
+            </script>
+    </body>
+
+</html>
